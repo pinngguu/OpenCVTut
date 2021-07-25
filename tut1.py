@@ -1,6 +1,81 @@
 import numpy as np
 import cv2
 
+"""
+#____________FACE AND EYE DETECTION__________________
+
+cap = cv2.VideoCapture('assets/crush.mp4')
+
+#modules for face and eye detection
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+
+while True:
+    ret, frame = cap.read()
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    #detection by drawing a rectangle the object
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+    for (x, y, w, h) in faces:
+        cv2.rectangle(frame,(x,y), (x+w, y+h), (255,0,0), 5)
+        
+        #grab Region of Interest (area) of face and eyes. It takes first y, then x
+        roi_gray = gray[y:y+w, x:x+w]
+        roi_color = frame[y:y+h, x:x+h]
+        
+        eyes = eye_cascade.detectMultiScale(roi_gray, 1.3, 4)
+        for(ex, ey, ew, eh) in eyes:
+            cv2.rectangle(roi_color,(ex,ey), (ex+ew, ey+eh), (0, 255, 0), 5)
+
+    cv2.imshow('frame', frame)
+
+    if cv2.waitKey(1) == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+"""
+
+
+"""
+#__________________TEMPLATE DETECTION______________________
+
+#import image and template, both need to resize and not just one.
+img = cv2.resize(cv2.imread('assets/soccer_practice.jpg',0), (0,0), fx=0.5, fy=0.5)
+template = cv2.resize(cv2.imread('assets/ball.PNG',0), (0,0), fx=0.5, fy=0.5)
+
+
+h, w = template.shape
+
+#all methods are called and will be used one by one.
+methods = [cv2.TM_CCOEFF, cv2.TM_CCOEFF_NORMED, cv2.TM_CCORR, cv2.TM_CCORR_NORMED, cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]
+
+#loop to see each method
+for method in methods:
+    img2 = img.copy()
+
+    result = cv2.matchTemplate(img2, template, method) 
+    #dimensions are (W-w+1, H-h+1) 
+    
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+      
+    if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+        location = min_loc  #Only these two methods give minimum location
+    else:
+        location = max_loc
+
+    #find bottom right corner because location gives value of top left corner of surrounding rectangle
+    bottom_right = (location[0] + w, location[1] + h)
+
+    cv2.rectangle(img2, location, bottom_right, 255, 3)
+    cv2.imshow('Match', img2)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+"""
+
+
 
 """
 #____________ CORNER DETECTION ________________ 
